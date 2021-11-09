@@ -20,22 +20,24 @@
 
 <body class="d-flex h-100 text-center text-white bg-dark justify-content-center align-items-center">
     <div class="jumbotron text-center text-white bg-dark justify-content-center align-items-center">
-        <h1>Play Matching Pennies</h1>
+        <h1>Matching Pennies</h1>
         <p class="lead">Play a game of Matching Pennies against the computer.</p>
-        <p class="lead">You and the computer take turns choosing either <span class="label label-primary">blue</span> or <span class="label label-danger">red</span>.</p>
-        <p class="lead">You win if you choose a color different from the one chosen by the computer.</p>
+        <p class="lead">You and the computer take turns choosing either <span class="label label-primary">Blue</span> or <span class="label label-danger">Red</span>.</p>
+        <p class="lead">You win if you choose <b>a different color</b> from the one chosen by the computer.</p>
         <p class="lead">Note that by clicking on play you agree that we will save your choices and the time taken to answer the rounds anonymously in order to try to make an explainable AI prediction model.</p>
         <p class="lead">
             <a href="play" class="btn btn-lg fw-bold border-white bg-white">Play {{max_rounds}} rounds</a>
         </p>
 
+        <footer class="mt-auto text-white">
             <p>{{games_played}} games were already played.</p>
-        <footer class="mt-auto text-white-50">
-            <p>Contact me at <i>x@gmail.com</i> where <i>x=theomatricon</i>.</p>
         </footer>
+
+        
     </div>
 
-
-</body>
+    <footer class="mt-auto text-white-50">
+        <p>Contact me at <i>x@gmail.com</i> where <i>x=theomatricon</i>.</p>
+    </footer></body>
 
 </html>
