@@ -31,7 +31,7 @@ app: Flask = Flask(__name__)
 
 @app.route('/')
 def index() -> str:
-    return render_template("index.html", max_rounds=MAX_ROUNDS)
+    return render_template("index.html", max_rounds=MAX_ROUNDS, games_played=game_no)
 
 @app.route('/play')
 def play() -> str:
