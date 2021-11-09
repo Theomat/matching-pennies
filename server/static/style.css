@@ -1,0 +1,33 @@
+
+/* Custom default button */
+.btn-secondary,
+.btn-secondary:hover,
+.btn-secondary:focus {
+    color: #333;
+    text-shadow: none; /* Prevent inheritance from `body` */
+}
+.bg-dark {
+    background-color: #333;
+}
+.text-white {
+    color: white;
+}
+.bg-white {
+    background-color: white;
+}
+.border-white {
+    border-color: white;
+}
+.fw-bold {
+    font-weight: bold;
+}
+.text-center {
+    text-align: center;
+}      
+.fs-large {
+    font-size: xx-large;
+}
+
+.label {
+    padding: none;
+}
