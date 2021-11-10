@@ -3,6 +3,7 @@
 
 # Game files
 games/
+metrics.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
