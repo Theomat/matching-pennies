@@ -28,3 +28,17 @@ Note that for the first decision the timer starts ticking when the user lands on
 ### CPU Strategy
 
 Currently the CPU plays purely randomly.
+
+## Game Data
+
+The game data can be quickly converted into metrics using:
+
+```bash
+python produce_game_metrics.py
+```
+
+which produces a `metrics.json` file which in turn can be plotted using:
+
+```bash
+python interactive_plot.py metrics.json
+```
