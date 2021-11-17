@@ -9,7 +9,9 @@
 
 
 
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <!--load all styles -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/style.css">
     <meta name="theme-color" content="#7952b3">
 
@@ -19,25 +21,33 @@
 </head>
 
 <body class="d-flex h-100 text-center text-white bg-dark justify-content-center align-items-center">
-    <div class="jumbotron text-center text-white bg-dark justify-content-center align-items-center">
-        <h1>Matching Pennies</h1>
-        <p class="lead">Play a game of Matching Pennies against the computer.</p>
-        <p class="lead">You and the computer take turns choosing either <span class="label label-primary">Blue</span> or <span class="label label-danger">Red</span>.</p>
-        <p class="lead">You win if you choose <b>a different color</b> from the one chosen by the computer.</p>
-        <p class="lead">Note that by clicking on play you agree that we will save your choices and the time taken to answer the rounds anonymously in order to try to make an explainable AI prediction model.</p>
-        <p class="lead">
-            <a href="play" class="btn btn-lg fw-bold border-white bg-white">Play {{max_rounds}} rounds</a>
-        </p>
-
-        <footer class="mt-auto text-white">
-            <p>{{games_played}} games were already played.</p>
-        </footer>
-
+        <div class="jumbotron text-center text-white bg-dark justify-content-center align-items-center mw-1000">
+            <h1>Matching Pennies</h1>
+            <p class="lead">Play a game of Matching Pennies against the computer.</p>
+            <p class="lead">You and the computer take turns choosing either <a class="btn-primary btn-lg fw-bold">Blue</a> or <a
+                    class="btn-danger btn-lg fw-bold">Red</a>.</p>
+            <p class="lead">You win if you choose <b>a different color</b> from the one chosen by the computer.</p>
+            <p class="lead">Note that by clicking on play you agree that we will save your choices and the time taken to answer
+                the rounds anonymously in order to try to make an explainable AI prediction model.</p>
+            <p class="lead">
+                <a href="play" class="btn btn-lg fw-bold border-white bg-white">Play!</a>
+            </p>
         
-    </div>
+            <footer class="mt-auto text-white">
+                <p>{{games_played}} games were already played.</p>
+                <p>Contact me at <i>x@gmail.com</i> where <i>x=theomatricon</i>.</p>
+            </footer>
+        
+        
+        </div>
 
-    <footer class="mt-auto text-white-50">
-        <p>Contact me at <i>x@gmail.com</i> where <i>x=theomatricon</i>.</p>
-    </footer></body>
+    <script src="/static/modules/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+</body>
 
 </html>
