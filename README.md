@@ -17,7 +17,7 @@ The games played will appear in the `games` folder with one file per game.
 
 ### Game File structure
 
-A game file is a CSV file with three colunms. 
+A game file is a CSV file with three colunms.
 There is one line per round player.
 The first column is `0|1` and represents the human choice.
 The second column is `0|1` and represents the CPU choice.
@@ -39,5 +39,5 @@ python produce_game_metrics.py
 which produces a `metrics.json` file which in turn can be plotted using:
 
 ```bash
-python interactive_plot.py metrics.json
+python metrics_tracker.py metrics.json
 ```
