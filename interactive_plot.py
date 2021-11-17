@@ -1,46 +1,74 @@
-from typing import Any, Dict, List, Literal, Optional, Union
-import matplotlib.pyplot as plt
+from typing import Any, Dict, List, Literal, Optional, Set, Tuple
+
+from metrics_tracker import DataType
+
+from colorama import Fore  # type: ignore
+
+import matplotlib.pyplot as plt #type: ignore
 
 import numpy as np
 
-StoredDataKey = Union[Literal["data"], Literal["type"], 
-                      Literal["bins"], Literal["labels"]]
+StoredDataKey = Literal["data", "orientation", "type", "bins", "labels", "measure"]
 StoredData = Dict[StoredDataKey, Any]
+
+__OPTIONS_STR__ = "@"
+__GRAPH_STR__ = "+"
+__KWARGS_STR__ = "$"
+
+__ALLOWED_KWARGS__ = ["logx", "logy", "loglog", "exp"]
+__OPTIONS__ = ["sharex", "sharey", "sharexy", "grid"]
+
+
+def __optional_split__(text: str, split: str) -> List[str]:
+    if split in text:
+        return text.split(split)
+    return [text]
 
 
 def interactive_plot(metrics: Dict[str, Dict[StoredDataKey, Any]]):
     while True:
-        print("Available data:", ", ".join(metrics.keys()))
+        print("Available data:", ", ".join([Fore.LIGHTYELLOW_EX + s + Fore.RESET for s in metrics.keys()]))
         try:
-            choice = input("Which metric do you want to plot?\n>").lower().strip()
+            query = input("Which metric do you want to plot?\n>" + Fore.LIGHTGREEN_EX)
+            print(Fore.RESET, end=" ")
         except EOFError:
             break
 
+        global_options = __optional_split__(query.lower().strip(), __OPTIONS_STR__)
+        choice = global_options.pop(0)
+        elements = __optional_split__(choice, __GRAPH_STR__)
+        things_with_options = [__get_graph_options__(x) for x in elements]
+        metrics_with_str_options = [(__find_metrics_for__(metrics, x), y) for x,y in things_with_options]
+        metrics_with_options = [(x, __parse_kwargs__(y))
+                                for x, y in metrics_with_str_options if len(x) > 0]
+        if len(metrics_with_options) == 0:
+            print(Fore.RED + "No metrics found matching query:\'" +
+                  Fore.LIGHTRED_EX + query + Fore.RED + "\'" + Fore.RESET)
+            continue
+
+        correctly_expanded_metrics_with_otpions: List[Tuple[List[str], Dict]] = []
+        for x, y in metrics_with_options:
+            if y["exp"]:
+                for el in x:
+                    correctly_expanded_metrics_with_otpions.append(([el], y))
+
+            else:
+                correctly_expanded_metrics_with_otpions.append((x, y))
+        
         plt.figure()
-        options = []
-        if "@" in choice:
-            tmp = choice.split("@")
-            choice = tmp[0]
-            options = tmp[1:]
-        if "+" in choice:
-            elements = choice.split("+")
-        else:
-            elements = [choice]
-        __plot_all__(metrics, elements, options)
+        __plot_all__(metrics, correctly_expanded_metrics_with_otpions, global_options)
         plt.show()
 
 
 # ------------------------------------------------
 ## Plot function
 # ------------------------------------------------
-def __plot__(metrics: Dict[str, Dict[StoredDataKey, Any]], metric_name: str, logx: bool = False, logy: bool = False, **kwargs):
-    info: Dict = metrics[metric_name]
-    metric_name = metric_name.replace("_", " ").title()
-    data: List = info["data"]
-    data_type: str = info["type"]
-    if data_type == "batch":
-        plt.plot(data)
-        plt.xlabel("Batch")
+def __plot__(metrics: Dict[str, Dict[StoredDataKey, Any]], metrics_name: List[str], logx: bool = False, logy: bool = False, **kwargs):
+    data_type = DataType(metrics[metrics_name[0]]["type"])
+    if data_type == DataType.MAP and any(metrics[n]["type"] == DataType.DISTRIBUTION for n in metrics_name):
+        data_type = DataType.DISTRIBUTION
+    if data_type == DataType.SEQUENTIAL:
+        plt.xlabel("Time")
         if logx:
             if logy:
                 plt.loglog()
@@ -48,58 +76,144 @@ def __plot__(metrics: Dict[str, Dict[StoredDataKey, Any]], metric_name: str, log
                 plt.semilogx()
         elif logy:
             plt.semilogy()
+        for name in metrics_name:
+            nice_name = name.replace("_", " ").replace(".", " ").title()
+            plt.plot(metrics[name]["data"], label=nice_name)
 
-        plt.ylabel(metric_name)
-    elif data_type == "distribution":
-        bins = info.get("bins", None)
-        orientation = "horizontal" if "labels" in info else "vertical"
-        plt.hist(data, bins=bins, density=True, align="left", orientation=orientation)
-        plt.xlabel(metric_name)
-        plt.ylabel("Frequency")
-        if "labels" in info:
-            plt.xlabel("Frequency")
-            plt.ylabel(metric_name)
-            plt.yticks(np.array(range(len(info["labels"]))), labels=info["labels"], rotation=0)
+        if len(metrics_name) > 1:
+            plt.legend()
+        else:
+            plt.ylabel(nice_name)
+
+    elif data_type == DataType.DISTRIBUTION:
+        # This may also contain maps
+        # We should convert distributions to maps
+        new_metrics:  Dict[str, Dict[StoredDataKey, Any]] = {}
+        for name in metrics_name:
+            nice_name = name.replace("_", " ").replace(".", " ").title()
+            info = metrics[name]
+            if info["type"] == DataType.MAP:
+                new_metrics[name] = metrics[name]
+                continue
+            bins = info.get("bins", None)
+            hist, edges = np.histogram(metrics[name]["data"], bins=bins, density=True)
+            if "labels" in info:
+                labels = info["labels"]
+                data = list(zip(labels, hist))
+                orientation = "horizontal"
+            else:
+                data = sorted([((edges[i], edges[i+1]), hist[i]) for i in range(len(hist))], key=lambda x: x[0])
+                orientation = "vertical"
+            new_metrics[name] = {
+                "data": data,
+                "type": DataType.MAP,
+                "measure": "Frequency",
+                "orientation": orientation,
+            }
+
+        return __plot__(new_metrics, metrics_name, logx, logy, **kwargs)
+
+    else:
+        higher_data : List[Tuple[str, Dict[Any, float], bool]] = []
+        measure: Optional[str] = None
+        for name in metrics_name:
+            nice_name = name.replace("_", " ").replace(".", " ").title()
+            data = metrics[name]["data"]
+            out = {}
+            for a, b in data:
+                out[a] = b
+            higher_data.append(
+                (nice_name, out, metrics[name].get("orientation", "horizontal") == "vertical"))
+            if "measure" in metrics[name]:
+                measure = metrics[name]["measure"]
+        # Compute set of all labels
+        all_labels: Set[Any] = set()
+        for _, d, _ in higher_data:
+            all_labels |= d.keys()
+        # Plot
+        vertical = all(v for _, _, v in higher_data)
+        if vertical:
+            if isinstance(list(all_labels)[0], tuple):
+                query_labels = sorted(all_labels, key=lambda x:x[0])
+                labels = list(set([x for x, y in all_labels]) |  set([y for x, y in all_labels]))
+                labels = sorted(labels)
+                x = [(labels[i] + labels[i+1])/2 for i in range(len(labels) - 1)]
+            else:
+                labels = sorted(all_labels, key=lambda x: int(x[1:x.index(";")]))
+                query_labels = labels
+                x = list(range(len(labels)))
+        else:
+            labels = sorted(all_labels)
+            query_labels = labels
+            x = list(range(len(labels)))
+
+        for nice_name, d, _ in higher_data:
+            widths = [d.get(s, 0) for s in query_labels]
+            if vertical:
+                plt.bar(x, widths, label=nice_name, log=logy)
+            else:
+                plt.barh(x, widths,
+                         label=nice_name, log=logx)
+
+        if len(metrics_name) > 1:
+            plt.legend()
+        else:
+            if vertical:
+                plt.xlabel(nice_name)
+            else:
+                plt.ylabel(nice_name)
+        if vertical:
+            if measure:
+                plt.ylabel(measure)
+            if len(labels) > len(query_labels):
+                plt.xticks(labels, labels=labels, rotation=0)
+            else:
+                plt.xticks(np.array(range(len(labels))), labels=labels, rotation=0)
+        else:
+            if measure:
+                plt.xlabel(measure)
+            plt.yticks(np.array(range(len(labels))), labels=labels, rotation=0)
+
+
+            
 
 # ------------------------------------------------
 ## INTERACTION
 # ------------------------------------------------
+def __get_graph_options__(text: str) -> Tuple[str, List[str]]:
+    el = __optional_split__(text, __KWARGS_STR__)
+    return el.pop(0), el
 
-
-def __find_unique_metric_by_prefix__(metrics: Dict[str, Dict[StoredDataKey, Any]], prefix: str) -> Optional[str]:
+def __find_metrics_for__(metrics: Dict[str, Dict[StoredDataKey, Any]], prefix: str) -> List[str]:
     candidates = list(metrics.keys())
     for i, l in enumerate(prefix):
-        candidates = [cand for cand in candidates if cand[i] == l]
+        candidates = [cand for cand in candidates if len(
+            cand) > i and cand[i] == l]
         if len(candidates) == 1:
-            return candidates[0]
-    return None
+            return candidates
+    return candidates
 
-
-def __parse_and_plot__(metrics: Dict[str, Dict[StoredDataKey, Any]], element: str) -> bool:
+def __parse_kwargs__(options: List[str]) -> Dict[str, Any]:
     kwargs = {}
-    if "." in element:
-        elements = element.split(".")
-        element = elements.pop(0)
-        for el in ["logx", "logy", "loglog"]:
-            kwargs[el] = el in elements
-        kwargs["logx"] |= kwargs["loglog"]
-        kwargs["logy"] |= kwargs["loglog"]
-    choice = __find_unique_metric_by_prefix__(metrics, element)
-    if choice:
-        __plot__(metrics, choice, **kwargs)
-        return True
-    return False
+    for el in __ALLOWED_KWARGS__:
+        kwargs[el] = el in options
+    kwargs["logx"] |= kwargs["loglog"]
+    kwargs["logy"] |= kwargs["loglog"]
+    return kwargs
 
 
-def __plot_all__(metrics: Dict[str, Dict[StoredDataKey, Any]], elements: List[str], options: List[str]):
+def __plot_all__(metrics: Dict[str, Dict[StoredDataKey, Any]], elements: List[Tuple[List[str], Dict[str, Any]]], global_options: List[str]):
     ax_list = []
-    for i, element in enumerate(elements):
-        ax = plt.subplot(1, len(elements), 1 + i)
+
+    nrows, ncols = 1, len(elements)
+
+    for i, (metrics_to_plot, kwargs) in enumerate(elements):
+        ax = plt.subplot(nrows, ncols, 1 + i)
         ax_list.append(ax)
-        __parse_and_plot__(metrics, element)
-    if "sharex" in options or "sharexy" in options:
+        __plot__(metrics, metrics_to_plot, **kwargs)
+    if "sharex" in global_options or "sharexy" in global_options:
         ax_list[0].get_shared_x_axes().join(*ax_list)
-    if "sharey" in options or "sharexy" in options:
+    if "sharey" in global_options or "sharexy" in global_options:
         ax_list[0].get_shared_y_axes().join(*ax_list)
     plt.show()
 
@@ -109,8 +223,20 @@ def __plot_all__(metrics: Dict[str, Dict[StoredDataKey, Any]], elements: List[st
 # ------------------------------------------------
 if __name__ == "__main__":
     import sys
+    import os
     import json
+    if len(sys.argv) < 2:
+        print(Fore.LIGHTGREEN_EX + "Usage:" +
+              Fore.GREEN + sys.argv[0] + " <filename>" + Fore.RESET)
+        sys.exit(0)
     filename = sys.argv[1]
+    if not os.path.exists(filename):
+        print(Fore.RED + "No such file:\'" +
+              Fore.LIGHTRED_EX + filename + Fore.RED + "\'" + Fore.RESET)
+        sys.exit(1)
     with open(filename) as fd:
         metrics = json.load(fd)
+
+    # helper.use_colorblind_palette()
+    # helper.use_latex_style()
     interactive_plot(metrics)
