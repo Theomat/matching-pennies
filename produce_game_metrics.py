@@ -6,7 +6,7 @@ from metrics_tracker import Metrics, DataType
 
 metrics = Metrics()
 metrics.new_data("payoff", DataType.DISTRIBUTION)
-metrics.new_data("choice", DataType.DISTRIBUTION)
+metrics.new_data("choice", DataType.DISTRIBUTION, labels=["Blue", "Red"])
 metrics.new_data("rounds", DataType.DISTRIBUTION)
 metrics.new_data("choice.after.lost.changed", DataType.DISTRIBUTION, labels= ["False", "True"]), 
 metrics.new_data("win.rate", DataType.DISTRIBUTION)
@@ -42,5 +42,6 @@ for file in glob.glob("./games/*.csv"):
 
 metrics.auto_bins("payoff")
 metrics.auto_bins("rounds")
+metrics.auto_bins("choice")
 metrics.auto_bins("choice.after.lost.changed")
 metrics.save()
