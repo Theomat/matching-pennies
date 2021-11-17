@@ -1,6 +1,5 @@
 # Matching Pennies
 
-
 ## Game server
 
 We offer a ready to use game server to collect data from players.
@@ -11,7 +10,7 @@ We offer a ready to use game server to collect data from players.
 # Make sure games folder exist
 mkdir -p games 
 # Launch server
-python server/server.py -r <number_of_rounds>
+python server/server.py
 ```
 
 The games played will appear in the `games` folder with one file per game.
