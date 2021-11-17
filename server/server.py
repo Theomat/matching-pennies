@@ -8,6 +8,7 @@ from flask import Flask, render_template, request
 # -----------------------------------------------------------
 ## Globals
 # -----------------------------------------------------------
+min_rounds_to_save: int = 5
 game_no: int = 0
 # Compute first free game number
 while os.path.exists(f"./games/{game_no}.csv"):
@@ -19,6 +20,7 @@ def parse_args() -> SimpleNamespace:
     parser: argparse.ArgumentParser = argparse.ArgumentParser(description="Flask server to run an online matching penny game server.")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="(default: \"0.0.0.0\") the server host")
     parser.add_argument("-d", "--debug", action="store_true", help="(default: False) debug mode")
+    parser.add_argument("-m", "--min", action="store", type="int", default=min_rounds_to_save, help=f"(default: {min_rounds_to_save}) minimum number of rounds to be played for the game to be saved")
 
     return parser.parse_args()
 
@@ -49,6 +51,8 @@ def save_game():
             if success:
                 rounds.append(round)
             i += 1
+        if len(rounds) < min_rounds_to_save:
+            return "Yes"
         # Write data to disk
         with open(f"./games/{game_no}.csv", "w") as fd:
             csv.writer(fd).writerows(rounds)
@@ -63,4 +67,5 @@ def save_game():
 # -----------------------------------------------------------
 if __name__ == "__main__":
     parameters: SimpleNamespace = parse_args()
+    min_rounds_to_save = parameters.min
     app.run(debug=parameters.debug, host=parameters.host)
