@@ -19,6 +19,7 @@ while os.path.exists(f"./games/{game_no}.csv"):
 def parse_args() -> SimpleNamespace:
     parser: argparse.ArgumentParser = argparse.ArgumentParser(description="Flask server to run an online matching penny game server.")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="(default: \"0.0.0.0\") the server host")
+    parser.add_argument("-p", "--port", type=int, default=5000, help="(default: 5000) the server port")
     parser.add_argument("-d", "--debug", action="store_true", help="(default: False) debug mode")
     parser.add_argument("-m", "--min-rounds", action="store", type=int, default=min_rounds_to_save, help=f"(default: {min_rounds_to_save}) minimum number of rounds to be played for the game to be saved")
 
@@ -68,4 +69,4 @@ def save_game():
 if __name__ == "__main__":
     parameters: SimpleNamespace = parse_args()
     min_rounds_to_save = parameters.min_rounds
-    app.run(debug=parameters.debug, host=parameters.host)
+    app.run(debug=parameters.debug, host=parameters.host, port=parameters.port)
