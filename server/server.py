@@ -5,13 +5,14 @@ from types import SimpleNamespace
 
 from flask import Flask, render_template, request
 
+GAME_FOLDER = "./games"
 # -----------------------------------------------------------
 ## Globals
 # -----------------------------------------------------------
 min_rounds_to_save: int = 5
 game_no: int = 0
 # Compute first free game number
-while os.path.exists(f"./games/{game_no}.csv"):
+while os.path.exists(f"{GAME_FOLDER}/{game_no}.csv"):
     game_no += 1
 # -----------------------------------------------------------
 ## Parse arguments
@@ -55,12 +56,13 @@ def save_game():
         if len(rounds) < min_rounds_to_save:
             return "Yes"
         # Write data to disk
-        with open(f"./games/{game_no}.csv", "w") as fd:
+        with open(f"{GAME_FOLDER}/{game_no}.csv", "w") as fd:
             csv.writer(fd).writerows(rounds)
         
         game_no += 1
         return "Yes"
     except:
+        print("An error occured when saving file!")
         return "No"
 
 # -----------------------------------------------------------
