@@ -100,11 +100,11 @@ function nextRound(){
     startTime = getMillis()
 }
 
-function humanChoice(choice){
+function humanChoice(choice, played_with_keys = false){
     if(dataSent)
         return
     let time = getMillis() - startTime
-    let round = [choice, getCPUPlay(), time]
+    let round = [choice, getCPUPlay(), time, played_with_keys]
     rounds.push(round)
     nextRound()
 }
@@ -245,6 +245,17 @@ $(document).ready(function () {
 
     setInterval(renderScoreBar, 20)
 });
+
+document.onkeyup = function (e) {
+    var e = e || window.event; // for IE to cover IEs window event-object
+    if (e.key == 'ArrowLeft') {
+        humanChoice(0, true)
+        return false;
+    } else if (e.key == 'ArrowRight') {
+        humanChoice(1, true)
+        return false;
+    }
+}
 
 $(window).bind('beforeunload', function () {
     sendData(false);
