@@ -135,14 +135,14 @@ function roundRect(ctx, x, y, w, h, bl, br){
 let lastRender = 0
 function renderScoreBar(){
     let t = getMillis()
-    let dt = t - lastRender;
     let w = WIDTH
     let h = HEIGHT
 
     let ctx = scoreBar
 
     let barWidth = Math.round(0.6 * w)
-    let barHeight = Math.round(0.6 * h)
+    let barHeight = Math.min(barWidth / 5, Math.round(0.6 * h))
+
     let tx = (w - barWidth) / 2
     let ty = (h - barHeight) / 2
 
