@@ -51,7 +51,7 @@ function sendData(try_redirect = true){
     window.alert("Score: You: " + score[0] + " | CPU: " + score[1] + "\nWin rate: " + Math.round(score[0] / rounds.length * 100) + "%\nPayoff: " + (score[0] -score[1]));
     dataSent = true
     $.post("save", { rounds: rounds }, function (result) {
-        if (result == "Yes" && try_redirect){
+        if (try_redirect){
             $(location).attr("href", window.location.origin);
         }
     });
