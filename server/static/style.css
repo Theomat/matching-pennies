@@ -39,6 +39,10 @@
     
 }
 
+.square {
+    padding-top: 100%;
+}
+
 .overlay {
     position: fixed;
     display: block;
