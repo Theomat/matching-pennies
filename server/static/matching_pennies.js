@@ -133,8 +133,6 @@ function roundRect(ctx, x, y, w, h, bl, br){
 }
 
 let lastRender = 0
-let hu_particles = []
-let cpu_particles = []
 function renderScoreBar(){
     let t = getMillis()
     let dt = t - lastRender;
@@ -195,34 +193,6 @@ function renderScoreBar(){
     lastRender = getMillis();
 }
 
-function doParticles(ctx, particles, chance, direction, ratio, tx, ty, pradius, barWidth, barHeight, dt){
-    let next_particles = []
-    for (var i = 0; i < particles.length; i++) {
-        let part = particles[i];
-        let x = part[0]
-        let y = part[1]
-        let vx = part[2]
-        let vy = part[3]
-        let ticks = part[4]
-        ctx.beginPath()
-        ctx.arc(x, y, pradius, 0, 50, false)
-        ctx.fill()
-        ticks -= dt
-        if (ticks > 0 && x - pradius >= -tx && y - pradius >= -ty && x + pradius <= barWidth + tx && y + pradius <= barHeight + ty) {
-            x += vx * dt / 1000 * pradius
-            y += vy * dt / 1000 * pradius
-            next_particles.push([x, y, vx, vy, ticks])
-        }
-    }
-    for (var i = 0; i < TRIES && next_particles.length < MAX_PARTICLES; ++i) {
-        if (Math.random() < chance) {
-            next_particles.push([barWidth * ratio + direction * pradius, Math.random() * barHeight,
-            direction * (.1 + Math.random()) * barWidth / 2, (2 * Math.random() - 1) * barHeight / 2,
-            Math.round(Math.random() * 800 + 200)])
-        }
-    }
-    return next_particles
-}
 
 
 function blink(duration){
