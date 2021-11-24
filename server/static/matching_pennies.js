@@ -14,8 +14,7 @@ const HIST_SIZE = 10
 
 
 function produceTable(array, caption, col_names, line_names) {
-    var caption = "<caption>" + caption + "</caption>"
-
+    // var caption = "<caption class='my-caption'>" + caption + "</caption>"
     var head = "<thead>" + (line_names === undefined ? "" : "<tr><th scope=\"col\">#</th>")
     for (var i = 0; i < col_names.length; i++) {
         head += "<th scope=\"col\">" + col_names[i] + "</th>"
@@ -33,7 +32,7 @@ function produceTable(array, caption, col_names, line_names) {
         body += row
     }
     body += "</tbody>"
-    return "<table class=\"table caption-top\">" + caption + head + body + "</table>"
+    return "<table class=\"table caption-top table-sm\">" + head + body + "</table>"
 }
 
 function getCPUPlay(){
@@ -80,7 +79,7 @@ function nextRound(){
         }
         for (var j = startRound; j < rounds.length; j++) {
             let color = rounds[j][i] == 1 ? "danger" : "primary"
-            let content = "<a class=\"btn-" + color + " btn-lg fw-bold\"> </a>"
+            let content = "<a class=\"btn-" + color + " hist-node\"> </a>"
             line.push(content)
         }
         
@@ -92,9 +91,9 @@ function nextRound(){
     }
     for (var i = startRound; i < rounds.length; i++){
         let c = rounds[i][0] != rounds[i][1] ? "W" : "L"
-        col_names.push("R" + (i + 1) +": " + c)
+        col_names.push(c)
     }
-    history.innerHTML = produceTable(array, "", col_names, ["You", "CPU"])
+    history.innerHTML = produceTable(array, "History", col_names, ["You", "CPU"])
     timeCircleBar.renderProgress(100)
     // Reset startTime
     startTime = getMillis()

@@ -52,3 +52,14 @@
     bottom: 0;
     z-index: 2;
 }
+
+.hist-node {
+    padding: .3rem .8rem;
+    border-radius: .3rem;
+};
+
+.my-caption {
+    caption-side: top;
+    color: white;
+    padding: .3rem 1rem;
+};
