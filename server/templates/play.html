@@ -15,64 +15,43 @@
     <link rel="stylesheet" href="/static/style.css">
     <meta name="theme-color" content="#7952b3">
 
+    <script type="text/javascript">
+        let play_time = {{play_time}}
+        let read_time = {{read_time}}
+        let test_time = {{test_time}}
+        let room_no = {{room_no}}
+    </script>
+
 
 </head>
-<body class="d-flex h-100 text-center text-white bg-dark justify-content-center align-items-center">
-    <div class="bg-dark fit-page">
-        <div id="overlay" class="overlay fit-page bg-transparent">
-            <div class="row" style="align-items:center; width: 100%;">
-                <div class="col-9">
-                </div>
-                <div class="col-3">
-                    <a class="btn-warning btn-lg fw-bold fs-large real-btn" onclick="sendData()">Quit</a>
-                </div>
-            </div>
-            <canvas id="score" class=" maxh" style="width: 100%; height: 15%;"></canvas>
-            <div class="container">
+<body class="d-flex h-100 text-center justify-content-center align-items-center">
+    <div class="jumbotron text-center justify-content-center align-items-center mw-1000 bg-white" id="tuto">
+        <p>Your goal is to generate a sequence of 0 and 1.</p>
+        <p>You will generate at least 500 elements in {{play_time}} min, that is a bit more than 2 per second, so you have to do it fast.</p>
+        <p>You have to generate 0 and 1 continuously or your entry will be discarded.</p>
+        <br/>
+        <p>We will then pass your sequence to an artifical intelligence that will try to predict the next element.</p>
+        <p>The person who produces the most unpredictible sequence in this room will get some 2€/person in the room voucher.</p>
+        <br/>
+        <p>You can either click on the buttons or press the left and right arrows which we recommend.</p>
+        <br/>
+        <p>The experiment will start in {{read_time}} min, please write your mail so that we can give you your prize:</p>
+        <input type="email" id="mail"></input>
+        
+    </div>
 
-                <div class="row">
-                    <div class="col-sm-3 col-6">
-                        <div class="row h-100 align-items-center">
-                            <div class="container">
-                                <div class="time-bar" id="time" data-circle-counter=1000>
-                                    <div class="loader-bg">
-                                        <div class="text">Time</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="col-sm-6 col-6">
-                        <div class="jumbotron text-center text-white justify-content-center align-items-center bg-transparent">
-                            <p class="fs-large">Play:</p>
-                            <p class="d-block d-sm-none"><a class="btn-primary btn-lg fw-bold fs-large real-btn" onclick="humanChoice('0')">Blue</a></p>
-                            <p class="d-block d-sm-none"><a class="btn-danger btn-lg fw-bold  fs-large real-btn" onclick="humanChoice('1')">Red</a></p>
-                            <a class="d-none d-sm-inline btn-primary btn-lg fw-bold fs-large real-btn" onclick="humanChoice('0')">Blue</a>
-                            <a class="d-none d-sm-inline btn-danger btn-lg fw-bold  fs-large real-btn" onclick="humanChoice('1')">Red</a>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 col-0 d-none d-sm-block">
-                        <div class="row align-items-center h-100">
-                            <div class="container">
-                                <p>You can use the left and right arrow keys to select a color.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="history"></div>
-
+    <div class="jumbotron text-center justify-content-center align-items-center mw-1000 bg-white" id="real">
+        <p id="speed">Speed</p>
+        <div class="row">
+            <div class="col-6"><button class="btn-lg bg-white border-white" onclick="press(0)">0</button></div>
+            <div class="col-6"><button class="btn-lg bg-white border-white" onclick="press(1)">1</button></div>
         </div>
+    
     </div>
 
     <script src="/static/modules/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/circlebars@1.0.3/dist/circle.css">
-    <script src="https://unpkg.com/circlebars@1.0.3/dist/circle.js"></script>
-    <!-- Optionally add this to use a skin : -->
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/circlebars@1.0.3/dist/skins/firecircle.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
         crossorigin="anonymous"></script>

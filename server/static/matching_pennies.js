@@ -1,257 +1,98 @@
 var rounds = []
-var score = [0, 0]
 var startTime = getMillis()
-
-var timeCircleBar;
-var scoreBar, WIDTH, HEIGHT;
+var started = false
+var tuto_number_two = false
 var dataSent = false
-
-const TARGET_TIME = 10000
-const RATIO_FLUC = .0125
-const TRIES = 5
-const MAX_PARTICLES = 1000
-const HIST_SIZE = 10
-
-
-function produceTable(array, caption, col_names, line_names) {
-    // var caption = "<caption class='my-caption'>" + caption + "</caption>"
-    var head = "<thead>" + (line_names === undefined ? "" : "<tr><th scope=\"col\">#</th>")
-    for (var i = 0; i < col_names.length; i++) {
-        head += "<th scope=\"col\">" + col_names[i] + "</th>"
-    }
-    head += "</tr></thead>"
-
-    var body = "<tbody>"
-    for (var j = 0; j < array.length; j++) {
-        var row = "<tr>" + (line_names === undefined ? "" : "<th scope=\"row\">" + line_names[j] + " </th>")
-        var line = array[j]
-        for (var i = 0; i < line.length; i++) {
-            row += "<td>" + line[i] + "</td>"
-        }
-        row += "</tr>"
-        body += row
-    }
-    body += "</tbody>"
-    return "<table class=\"table caption-top table-sm\">" + head + body + "</table>"
-}
-
-function getCPUPlay(){
-    return Math.floor(Math.random() * 2);
-}
-
+var trial_end = 0
+var alertShown = false
+var true_start_time = getMillis()
 function getMillis(){
     const d = new Date();
     return d.getTime();
 }
 
-function sendData(try_redirect = true){
+function sendData(){
     if (dataSent)
         return
-    window.alert("Score: You: " + score[0] + " | CPU: " + score[1] + "\nWin rate: " + Math.round(score[0] / rounds.length * 100) + "%\nPayoff: " + (score[0] -score[1]));
     dataSent = true
-    $.post("save", { rounds: rounds }, function (result) {
-        if (try_redirect){
-            $(location).attr("href", window.location.origin);
-        }
-    });
+    $.post("save", { rounds: rounds , room_no: room_no, mail: mail}, function (result) {});
 }
 
-function nextRound(){
-    let numRound = rounds.length
-
-
-    if(numRound >= 1){
-        // Update score
-        let last_round = rounds[rounds.length - 1]
-        score[0] += last_round[0] != last_round[1]
-        score[1] += last_round[0] == last_round[1]
-    }
-
-    // Update visual elements
-
-    let history = document.getElementById("history")
-    let array = []
-    let startRound = Math.max(0, rounds.length - HIST_SIZE)
-    for (var i = 0; i < 2; i++){
-        let line = []
-        for (var j = 0; j < HIST_SIZE - rounds.length; j++) {
-            line.push("")
-        }
-        for (var j = startRound; j < rounds.length; j++) {
-            let color = rounds[j][i] == 1 ? "danger" : "primary"
-            let content = "<a class=\"btn-" + color + " hist-node\"> </a>"
-            line.push(content)
-        }
-        
-        array.push(line)
-    }
-    let col_names = []
-    for (var j = 0; j < HIST_SIZE - rounds.length; j++) {
-        col_names.push("")
-    }
-    for (var i = startRound; i < rounds.length; i++){
-        let c = rounds[i][0] != rounds[i][1] ? "W" : "L"
-        col_names.push(c)
-    }
-    history.innerHTML = produceTable(array, "History", col_names, ["You", "CPU"])
-    timeCircleBar.renderProgress(100)
-    // Reset startTime
-    startTime = getMillis()
-}
-
-function humanChoice(choice, played_with_keys = false){
-    if(dataSent)
+function press(choice, played_with_keys = false){
+    if (dataSent || !started || alertShown)
         return
     let time = getMillis() - startTime
-    let round = [choice, getCPUPlay(), time, played_with_keys]
+    let round = [choice, time, played_with_keys, tuto_number_two]
     rounds.push(round)
-    nextRound()
 }
 
-function toRad(degrees){
-    return degrees / 180 * Math.PI
-}
-
-function roundRect(ctx, x, y, w, h, bl, br){
-    ctx.beginPath()
-    ctx.moveTo(x + bl, y)
-
-    ctx.lineTo(x + w - br, y)
-    ctx.arc(x + w - br, y + br, br, toRad(90), 0, false)
-
-    ctx.lineTo(x + w, y + h - br)
-    ctx.arc(x + w - br, y + h - br, br, 0, toRad(270), false)
-    ctx.lineTo(x + w - br, y + h)
-
-    ctx.lineTo(x + bl, y + h) 
-    ctx.arc(x + bl, y + h - bl, bl, toRad(270), toRad(180), false)
-
-    ctx.lineTo(x, y + bl)
-    ctx.arc(x + bl, y + bl, bl, toRad(180), toRad(90), false)
-    ctx.closePath()
-}
-
-let lastRender = 0
-function renderScoreBar(){
-    let t = getMillis()
-    let w = WIDTH
-    let h = HEIGHT
-
-    let ctx = scoreBar
-
-    let barWidth = Math.round(0.6 * w)
-    let barHeight = Math.min(barWidth / 5, Math.round(0.6 * h))
-
-    let tx = (w - barWidth) / 2
-    let ty = (h - barHeight) / 2
-
-    ctx.clearRect(0, 0, w, h)
-    ctx.save()
-    ctx.translate(tx, ty)
-
-    let ratio = rounds.length == 0 ? .5 : score[0] / rounds.length
-    let b = h * 0.1
-
-    
-    ratio += Math.sin(t / 100) * RATIO_FLUC
-    ratio += Math.sin(t / 327) * RATIO_FLUC / 2
-    ratio += Math.sin(t / 1143) * RATIO_FLUC / 4
-    ratio = Math.min(1, Math.max(0, ratio))
-
-    ctx.save()
-    roundRect(ctx, 0, 0, barWidth, barHeight, b, b)
-    ctx.fill()
-    ctx.clip()
-
-    ctx.fillStyle = '#27ae60';
-    ctx.fillRect(0, 0, barWidth * ratio, barHeight)
-
-    ctx.fillStyle = '#f39c12';
-    ctx.fillRect(barWidth * ratio, 0, barWidth * (1 - ratio), barHeight)
-    ctx.restore()
-
-    // let pradius = b  / 4
-
-    // ctx.fillStyle = '#2ecc71';
-    // hu_particles = doParticles(ctx, hu_particles, ratio, -1, ratio, tx, ty, pradius, barWidth, barHeight, dt)
-    // ctx.fillStyle = '#f1c40f';
-    // cpu_particles = doParticles(ctx, cpu_particles, 1 - ratio, 1, ratio, tx, ty, pradius, barWidth, barHeight, dt)
-    ctx.restore()
-
-    let text_height = Math.round(barHeight / 2)
-    ctx.font = text_height+ "px Arial"
-    let m = ctx.measureText("You")
-    ctx.fillStyle = '#2ecc71';
-    ctx.fillText("You", tx / 2 - m.width / 2, ty + barHeight / 2 + m.actualBoundingBoxAscent / 2)
-    ctx.fillStyle = '#f1c40f';
-    m = ctx.measureText("CPU")
-    ctx.fillText("CPU", w - tx / 2 - m .width / 2, ty + barHeight / 2 + m.actualBoundingBoxAscent / 2)
-
-
-
-    lastRender = getMillis();
-}
-
-
-
-function blink(duration){
-    if (dataSent)
-        return
-    let overlay = document.getElementById("overlay")
-    overlay.classList.add("blink")
-    setTimeout(() => {
-        overlay.classList.remove("blink")
-    },
-    duration)
+function round(f, decimals=2){
+    let multiplier = Math.pow(10, decimals)
+    let x = Math.round(f * multiplier)
+    return x / multiplier
 }
 
 // MAIN
 $(document).ready(function () {
+    let real = document.getElementById("real")
+    real.style.display = "none";
+    let tuto = document.getElementById("tuto")
 
-    let canvas = document.getElementById("score")
-    
-    canvas.width = canvas.clientWidth
-    canvas.height = canvas.clientHeight
-    
-    scoreBar = canvas.getContext("2d");
 
-    WIDTH = canvas.width;
-    HEIGHT = canvas.height;
-
-    
-    timeCircleBar = new Circlebar({
-        element: ".time-bar",
-        skin: "fire",
-        type: "manual",
-        maxValue: 100,
-    });
-    nextRound()
-
-    let lastBlink = 0
-    setInterval(() => {
-        let x = (getMillis() - startTime) / 1000;
-        let value = 1/20 * Math.log((x *x) / 0.11 + 1) / Math.log(1.7);
-        let progress = Math.round(100 * (1 - value));
-        timeCircleBar.renderProgress(Math.max(0, progress));
-        if (progress < 50){
-            let nextDuration = Math.max(100, (1 - progress / 50) * 1000)
-            if(getMillis() - lastBlink > 1000 - nextDuration){
-                lastBlink = getMillis() + nextDuration
-                blink(nextDuration)
+    setTimeout(() => {
+        real.style.display = "block"
+        tuto.style.display = "none"
+        started = true
+        startTime = getMillis()
+        tuto_number_two = true
+        mail = document.getElementById("mail").innerHTML
+        setTimeout(() => {
+            alertShown = true
+            trial_end = rounds.length > 0 ? rounds.length - 1 : 0
+            tuto_number_two = false
+            let bit_per_second = round(rounds.length / test_time, 2)
+            let s = ""
+            for(var i = 0; i < rounds.length;i++){
+                s += "" + rounds[i][0]
             }
-        }
-    }, 100)
+            alert("You generated " + rounds.length + " elements.\nThat is " + bit_per_second + " bits/sec, you should have at least 2bits/sec.\nThis was the true end of the tutorial, now the real experiment will start.\nHere is what your sequence looks like:\n"+s)
+            startTime = getMillis()
+            true_start_time = getMillis()
+            setTimeout(() => {
+                sendData()
+                alert("Thank you the experiment is over!")
+                $(location).attr("href", "labri.fr");
+            }, play_time * 60 * 1000)
+            alertShown = false
+        }, test_time * 1000)
 
-    setInterval(renderScoreBar, 20)
+        let speed = document.getElementById("speed")
+        setInterval(() => {
+            let total_time = getMillis() - true_start_time
+            let remaining_time = play_time * 60 * 1000 - total_time
+            let bit_per_second = round(rounds.length / total_time * 1000, 2)
+            if(bit_per_second < 1){
+                speed.innerHTML = "You should go faster: " + bit_per_second + " bits/sec"
+            } else if (!tuto_number_two && bit_per_second * remaining_time / 1000 + rounds.length - trial_end < play_time * 60 * 2){
+                speed.innerHTML = "You will not generate enough data at this speed: " + bit_per_second + " bits/sec"
+            } else {
+                speed.innerHTML = ""
+            }
+
+        }, 100)
+    }, read_time * 60 * 1000)
+
+
+
 });
 
 document.onkeyup = function (e) {
     var e = e || window.event; // for IE to cover IEs window event-object
     if (e.key == 'ArrowLeft') {
-        humanChoice(0, true)
+        press(0, true)
         return false;
     } else if (e.key == 'ArrowRight') {
-        humanChoice(1, true)
+        press(1, true)
         return false;
     }
 }
