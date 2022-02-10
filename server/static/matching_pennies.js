@@ -45,7 +45,7 @@ $(document).ready(function () {
         started = true
         startTime = getMillis()
         tuto_number_two = true
-        mail = document.getElementById("mail").innerHTML
+        mail = document.getElementById("mail").value
         setTimeout(() => {
             alertShown = true
             trial_end = rounds.length > 0 ? rounds.length - 1 : 0
