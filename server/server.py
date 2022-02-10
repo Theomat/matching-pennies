@@ -9,6 +9,7 @@ import time
 from flask import Flask, render_template, request
 
 GAME_FOLDER = "./games"
+GAME_FOLDER = "/home/mpennies/matching-pennies/games"
 # -----------------------------------------------------------
 ## Globals
 # -----------------------------------------------------------
@@ -24,7 +25,7 @@ def parse_args() -> SimpleNamespace:
     parser.add_argument("--host", type=str, default="0.0.0.0", help="(default: \"0.0.0.0\") the server host")
     parser.add_argument("-p", "--port", type=int, default=5000, help="(default: 5000) the server port")
     parser.add_argument("-d", "--debug", action="store_true", help="(default: False) debug mode")
-    parser.add_argument("-o", "--output", type=str, default="./games", help="(default: './games') folder in which games are saved")
+    parser.add_argument("-o", "--output", type=str, default=GAME_FOLDER, help=f"(default: '{GAME_FOLDER}') folder in which games are saved")
 
     return parser.parse_args()
 
