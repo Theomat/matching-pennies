@@ -24,6 +24,7 @@ function press(choice, played_with_keys = false){
     let time = getMillis() - startTime
     let round = [choice, time, played_with_keys, tuto_number_two]
     rounds.push(round)
+    startTime = getMillis()
 }
 
 function round(f, decimals=2){
