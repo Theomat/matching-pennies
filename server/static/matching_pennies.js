@@ -70,10 +70,11 @@ $(document).ready(function () {
         setInterval(() => {
             let total_time = getMillis() - true_start_time
             let remaining_time = play_time * 60 * 1000 - total_time
-            let bit_per_second = round(rounds.length / total_time * 1000, 2)
+            let bits_generated = rounds.length - trial_end
+            let bit_per_second = round(bits_generated / total_time * 1000, 2)
             if(bit_per_second < 1){
                 speed.innerHTML = "You should go faster: " + bit_per_second + " bits/sec"
-            } else if (!tuto_number_two && bit_per_second * remaining_time / 1000 + rounds.length - trial_end < play_time * 60 * 2){
+            } else if (!tuto_number_two && bit_per_second * remaining_time / 1000 + bits_generated < play_time * 60 * 2){
                 speed.innerHTML = "You will not generate enough data at this speed: " + bit_per_second + " bits/sec"
             } else {
                 speed.innerHTML = ""
