@@ -24,6 +24,7 @@ def parse_args() -> SimpleNamespace:
     parser.add_argument("--host", type=str, default="0.0.0.0", help="(default: \"0.0.0.0\") the server host")
     parser.add_argument("-p", "--port", type=int, default=5000, help="(default: 5000) the server port")
     parser.add_argument("-d", "--debug", action="store_true", help="(default: False) debug mode")
+    parser.add_argument("-o", "--output", type=str, default="./games", help="(default: './games') folder in which games are saved")
 
     return parser.parse_args()
 
@@ -136,4 +137,5 @@ def save_game():
 # -----------------------------------------------------------
 if __name__ == "__main__":
     parameters: SimpleNamespace = parse_args()
+    GAME_FOLDER = parameters.output
     app.run(debug=parameters.debug, host=parameters.host, port=parameters.port)
