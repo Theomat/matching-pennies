@@ -61,7 +61,7 @@ $(document).ready(function () {
             setTimeout(() => {
                 sendData()
                 alert("Thank you the experiment is over!")
-                $(location).attr("href", "labri.fr");
+                $(location).attr("href", "");
             }, play_time * 60 * 1000)
             alertShown = false
         }, test_time * 1000)
