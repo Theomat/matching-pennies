@@ -54,6 +54,10 @@ def update_players(room_id: int) -> int:
 def now() -> float:
     return time.perf_counter()
 
+@app.route('/')
+def index() -> str:
+    return render_template("index.html")
+
 @app.route('/create')
 def create_room() -> str:
     room_id = get_new_room_id()
@@ -75,7 +79,7 @@ def join_room(room_id: int) -> str:
 @app.route('/<int:room_id>/info')
 def room_info(room_id: int) -> str:
     if room_id not in rooms:
-        return "0"
+        return "-1"
     return f"{update_players(room_id)}"
 
 @app.route('/<int:room_id>/start', methods=["POST"])
