@@ -56,7 +56,7 @@ $(document).ready(function () {
             for(var i = 0; i < rounds.length;i++){
                 s += "" + rounds[i][0]
             }
-            alert("You generated " + rounds.length + " elements.\nThat is " + bit_per_second + " bits/sec, you should have at least 2bits/sec.\nThis was the true end of the tutorial, now the real experiment will start.\nHere is what your sequence looks like:\n"+s)
+            alert("You generated " + rounds.length + " elements.\nThat is " + bit_per_second + " bits/sec, you should have at least 2 bits/sec.\nThis was the true end of the tutorial, now the real experiment will start.\nHere is what your sequence looks like:\n"+s)
             startTime = getMillis()
             true_start_time = getMillis()
             setTimeout(() => {
